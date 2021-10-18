@@ -1,11 +1,6 @@
-const { addDays, differenceInDays, format } = require("date-fns");
+const { addDays, differenceInDays, format, getMonth } = require("date-fns");
 const fs = require("fs").promises;
-
-const config = {
-  writePath: "./lesson-plans",
-  templatePath: "./lesson-plan-template.md",
-  ignoreWeekDays: [0, 5, 6], // 0 is Sunday
-};
+const config = require("./config");
 
 function parseEuropeanDate(string, delimiter = ".") {
   const [day, month, year] = string.split(delimiter);
@@ -27,6 +22,21 @@ async function createFolder(folder) {
   return folder;
 }
 
+function processTemplate(string, props) {
+  let template = string;
+
+  const data = {
+    date: null,
+    ...props,
+  };
+
+  if (data.date) {
+    template = template.replace("{{DATE}}", data.date);
+  }
+
+  return template;
+}
+
 void (async function () {
   const userDates = {
     start: new Date(parseEuropeanDate(process.argv[2], "/")),
@@ -39,9 +49,9 @@ void (async function () {
     `Processing between dates ${userDates.start.toDateString()} and ${userDates.end.toDateString()}...`
   );
 
-  await createFolder(config.writePath);
-
   try {
+    await createFolder(config.writePath);
+
     const template = await readTemplate();
 
     for (let day = 0; day <= daysToRun; day += 1) {
@@ -52,17 +62,21 @@ void (async function () {
         continue;
       }
 
-      const filename = `${format(currentDate, "d MMMM")}.md`;
-      const month = format(currentDate, "MMMM");
-      const writePath = await createFolder(`${config.writePath}/${month}`);
+      const month = format(currentDate, "MM MMMM");
+      const year = format(currentDate, "uuuu");
+      const filename = `${format(currentDate, "dd MMMM")}.md`;
+      const yearPath = await createFolder(`${config.writePath}/${year}`);
+      const fullPath = await createFolder(`${yearPath}/${month}`);
       const formattedDate = format(currentDate, "EEEE do MMMM");
-      const updatedTemplate = template.replace("{DATE}", formattedDate);
+      const updatedTemplate = processTemplate(template, {
+        date: formattedDate,
+      });
 
-      await fs.writeFile(`${writePath}/${filename}`, updatedTemplate, {
+      await fs.writeFile(`${fullPath}/${filename}`, updatedTemplate, {
         encoding: "utf8",
       });
 
-      console.log(`Written ${writePath}/${filename}`);
+      console.log(`Written ${fullPath}/${filename}`);
     }
   } catch (error) {
     console.log("Error:", error);
