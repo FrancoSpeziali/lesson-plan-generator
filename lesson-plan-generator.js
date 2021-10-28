@@ -1,41 +1,12 @@
 const { addDays, differenceInDays, format, getMonth } = require("date-fns");
-const fs = require("fs").promises;
 const config = require("./config");
-
-function parseEuropeanDate(string, delimiter = ".") {
-  const [day, month, year] = string.split(delimiter);
-
-  return new Date(`${month}/${day}/${year}`);
-}
-
-async function readTemplate() {
-  return await fs.readFile(config.templatePath, {
-    encoding: "utf8",
-  });
-}
-
-async function createFolder(folder) {
-  try {
-    await fs.mkdir(folder);
-  } catch (_) {}
-
-  return folder;
-}
-
-function processTemplate(string, props) {
-  let template = string;
-
-  const data = {
-    date: null,
-    ...props,
-  };
-
-  if (data.date) {
-    template = template.replace("{{DATE}}", data.date);
-  }
-
-  return template;
-}
+const {
+  createFolder,
+  readFile,
+  writeFile,
+  parseEuropeanDate,
+  processTemplate,
+} = require("./helpers");
 
 void (async function () {
   const userDates = {
@@ -52,7 +23,7 @@ void (async function () {
   try {
     await createFolder(config.writePath);
 
-    const template = await readTemplate();
+    const template = await readFile(config.templatePath);
 
     for (let day = 0; day <= daysToRun; day += 1) {
       const currentDate = addDays(userDates.start, day);
@@ -72,9 +43,7 @@ void (async function () {
         date: formattedDate,
       });
 
-      await fs.writeFile(`${fullPath}/${filename}`, updatedTemplate, {
-        encoding: "utf8",
-      });
+      await writeFile(`${fullPath}/${filename}`, updatedTemplate);
 
       console.log(`Written ${fullPath}/${filename}`);
     }
