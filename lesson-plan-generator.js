@@ -1,4 +1,4 @@
-const { addDays, differenceInDays, format, getMonth } = require("date-fns");
+const { addDays, differenceInDays, format, getISOWeek } = require("date-fns");
 const config = require("./config");
 const {
   createFolder,
@@ -23,16 +23,20 @@ void (async function (userDates) {
     for (let day = 0; day <= daysToRun; day += 1) {
       const currentDate = addDays(userDates.start, day);
       const weekday = currentDate.getDay();
+      const moduleWeek = format(currentDate, "II");
 
       if (config.ignoreWeekDays.includes(weekday)) {
         continue;
       }
 
-      const month = format(currentDate, "MM MMMM");
       const year = format(currentDate, "uuuu");
-      const filename = `${format(currentDate, "dd MMMM yyyy")}.md`;
-      const yearPath = await createFolder(`${config.writePath}/${year}`);
-      const fullPath = await createFolder(`${yearPath}/${month}`);
+      const filename = `${format(currentDate, "dd MMMM")}.md`;
+
+      await createFolder(`${config.writePath}/${year}`);
+
+      const fullPath = await createFolder(
+        `${config.writePath}/${year}/Week ${moduleWeek}`
+      );
       const formattedDate = format(currentDate, "EEEE do MMMM");
       const updatedTemplate = processTemplate(template, {
         date: formattedDate,
