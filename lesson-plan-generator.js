@@ -64,7 +64,7 @@ void (async function () {
 
       const month = format(currentDate, "MM MMMM");
       const year = format(currentDate, "uuuu");
-      const filename = `${format(currentDate, "dd MMMM")}.md`;
+      const filename = `${format(currentDate, "dd MMMM yyyy")}.md`;
       const yearPath = await createFolder(`${config.writePath}/${year}`);
       const fullPath = await createFolder(`${yearPath}/${month}`);
       const formattedDate = format(currentDate, "EEEE do MMMM");
