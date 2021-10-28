@@ -8,12 +8,7 @@ const {
   processTemplate,
 } = require("./helpers");
 
-void (async function () {
-  const userDates = {
-    start: new Date(parseEuropeanDate(process.argv[2], "/")),
-    end: new Date(parseEuropeanDate(process.argv[3], "/")),
-  };
-
+void (async function (userDates) {
   const daysToRun = differenceInDays(userDates.end, userDates.start);
 
   console.log(
@@ -50,4 +45,7 @@ void (async function () {
   } catch (error) {
     console.log("Error:", error);
   }
-})();
+})({
+  start: new Date(parseEuropeanDate(process.argv[2], "/")),
+  end: new Date(parseEuropeanDate(process.argv[3], "/")),
+});
