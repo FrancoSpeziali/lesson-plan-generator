@@ -15,6 +15,8 @@ Generates lesson plans in `.md` format, for each day
 
 Use date in European format and separate with `/`
 
+Dates are **inclusive**, which means a lesson plan will be generated for also the dates you specify.
+
 > Example:
 > 
 > `node lesson-plan-generator 20/10/2021 6/1/2022`
