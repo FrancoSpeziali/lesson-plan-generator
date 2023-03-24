@@ -1,4 +1,4 @@
-# Lesson Plan Generator
+# Lesson Plan Generator New
 
 Generates lesson plans in `.md` format, for each day
 
